@@ -1,0 +1,7 @@
+CREATE TABLE product (
+    id BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    sale_price DECIMAL(5,2) NOT NULL,
+    cost_price DECIMAL(5,2),
+    active TINYINT(1) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

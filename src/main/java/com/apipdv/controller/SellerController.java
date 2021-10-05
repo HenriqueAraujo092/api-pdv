@@ -1,12 +1,15 @@
 package com.apipdv.controller;
 
+import com.apipdv.event.ResourceCreatedEvent;
+import com.apipdv.model.Customer;
 import com.apipdv.model.Seller;
 import com.apipdv.repository.SellerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -21,6 +24,9 @@ public class SellerController {
     @Autowired
     private SellerRepository sellerRepository;
 
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
     @GetMapping
     public List<Seller> list() {
         return sellerRepository.findAll();
@@ -31,10 +37,9 @@ public class SellerController {
     public ResponseEntity<Seller> create(@Valid @RequestBody Seller seller, HttpServletResponse response) {
         Seller sellerSave = sellerRepository.save(seller);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(sellerSave.getId()).toUri();
-        response.setHeader("Location", uri.toASCIIString());
+        publisher.publishEvent(new ResourceCreatedEvent(this, response, sellerSave.getId()));
 
-        return ResponseEntity.created(uri).body(sellerSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(sellerSave);
     }
 
     @GetMapping("/{id}")
@@ -47,6 +52,26 @@ public class SellerController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        sellerRepository.delete(sellerRepository.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public Seller update(@PathVariable Long id, @Valid @RequestBody Seller newSeller) {
+
+        return sellerRepository.findById(id)
+            .map(seller -> {
+                seller.setName(newSeller.getName());
+                return sellerRepository.save(seller);
+            })
+            .orElseGet(() -> {
+                newSeller.setId(id);
+                return sellerRepository.save(newSeller);
+            });
     }
 
 }

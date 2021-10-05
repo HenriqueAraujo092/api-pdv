@@ -1,11 +1,18 @@
 package com.apipdv.controller;
 
+import com.apipdv.event.ResourceCreatedEvent;
 import com.apipdv.model.Customer;
 import com.apipdv.model.Seller;
 import com.apipdv.repository.CustomerRepository;
+import com.apipdv.service.CustomerService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -22,6 +29,12 @@ public class CustomerController {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
+    @Autowired
+    private CustomerService customerService;
+
     @GetMapping
     public List<Customer> list() {
         return customerRepository.findAll();
@@ -32,10 +45,9 @@ public class CustomerController {
     public ResponseEntity<Customer> create(@Valid @RequestBody Customer customer, HttpServletResponse response) {
         Customer customerSave = customerRepository.save(customer);
 
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(customerSave.getId()).toUri();
-        response.setHeader("Location", uri.toASCIIString());
+        publisher.publishEvent(new ResourceCreatedEvent(this, response, customerSave.getId()));
 
-        return ResponseEntity.created(uri).body(customerSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerSave);
     }
 
     @GetMapping("/{id}")
@@ -50,4 +62,15 @@ public class CustomerController {
         return ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        customerRepository.delete(customerRepository.getById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Customer> update(@PathVariable Long id, @Valid @RequestBody Customer newCustomer) {
+        Customer customerSave = customerService.update(id, newCustomer);
+        return ResponseEntity.ok(customerSave);
+    }
 }
