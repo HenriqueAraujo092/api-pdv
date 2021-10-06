@@ -18,8 +18,8 @@ public class ProductService {
         return productRepository.findById(id)
             .map(product -> {
                 product.setName(newProduct.getName());
-                product.setSalePrice(newProduct.getSalePrice());
-                product.setCostPrice(newProduct.getCostPrice());
+                product.setSale_price(newProduct.getSale_price());
+                product.setCost_price(newProduct.getCost_price());
                 product.setActive(newProduct.getActive());
                 return productRepository.save(product);
             })

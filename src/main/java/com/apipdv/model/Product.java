@@ -18,9 +18,9 @@ public class Product {
     private String name;
 
     @NotNull
-    private Number salePrice;
+    private Float sale_price;
 
-    private Number costPrice;
+    private Float cost_price;
 
     private Boolean active;
 
@@ -40,20 +40,20 @@ public class Product {
         this.name = name;
     }
 
-    public Number getSalePrice() {
-        return salePrice;
+    public Float getSale_price() {
+        return sale_price;
     }
 
-    public void setSalePrice(Number salePrice) {
-        this.salePrice = salePrice;
+    public void setSale_price(Float sale_price) {
+        this.sale_price = sale_price;
     }
 
-    public Number getCostPrice() {
-        return costPrice;
+    public Float getCost_price() {
+        return cost_price;
     }
 
-    public void setCostPrice(Number costPrice) {
-        this.costPrice = costPrice;
+    public void setCost_price(Float cost_price) {
+        this.cost_price = cost_price;
     }
 
     public Boolean getActive() {
@@ -69,12 +69,12 @@ public class Product {
         if (this == o) return true;
         if (!(o instanceof Product)) return false;
         Product product = (Product) o;
-        return Objects.equals(getId(), product.getId()) && Objects.equals(getName(), product.getName()) && Objects.equals(getSalePrice(), product.getSalePrice()) && Objects.equals(getCostPrice(), product.getCostPrice()) && Objects.equals(getActive(), product.getActive());
+        return Objects.equals(getId(), product.getId()) && Objects.equals(getName(), product.getName()) && Objects.equals(getSale_price(), product.getSale_price()) && Objects.equals(getCost_price(), product.getCost_price()) && Objects.equals(getActive(), product.getActive());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName(), getSalePrice(), getCostPrice(), getActive());
+        return Objects.hash(getId(), getName(), getSale_price(), getCost_price(), getActive());
     }
 
 }
